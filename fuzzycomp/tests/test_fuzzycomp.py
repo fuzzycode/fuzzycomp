@@ -54,7 +54,7 @@ class TestJaccardDistance( unittest.TestCase ):
         self.assertAlmostEqual( fuzzycomp.jaccard_distance( "Hello", "World" ), 0.7142857, 7 )
         self.assertEqual( fuzzycomp.jaccard_distance( "foo", "bar" ), 1.0 )
 
-class TestSoerenseIndex( unittest.TestCase ):
+class TestSoerensenIndex( unittest.TestCase ):
     def test_valid_input(self):
         """Algorithm should return correct values under valid input"""
         self.assertEqual( fuzzycomp.soerensen_index( "Hello", "Hello" ), 1.0 )
