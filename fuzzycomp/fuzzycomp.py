@@ -1,11 +1,31 @@
+# Copyright (C) 2011  Bjoern Larsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#TODO: Write up the documentation for all functions
+
 from exceptions import IndexError, ValueError
 from math import floor
 
 __all__ = ["levenshtein_distance", "jaccard_distance", "soerensen_index", "hamming_distance",
-           "lcs_length", "jaro_distance", "jaro_winkler" ]
+           "lcs_length", "jaro_distance", "jaro_winkler", "dice_coefficient", "soundex" ]
 
 class Matrix(object):
     def __init__(self, rows, cols, default = 0):
+        if rows < 0 or cols < 0:
+            raise ValueError("Array size must not be negative.")
+
         self.rows = rows
         self.cols = cols
         self.data = [[default for _ in range(cols)] for _ in range(rows)]
