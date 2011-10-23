@@ -214,12 +214,13 @@ def dice_coefficient(lhs, rhs):
     https://secure.wikimedia.org/wikipedia/en/wiki/Dice%27s_coefficient
     """
 
-    #Generate the bigrams
-    lhsbi =  [ lhs[index : index + 2 ] for index, _ in enumerate( lhs[0:-1] ) ]
-    rhsbi =  [ rhs[index : index + 2 ] for index, _ in enumerate( rhs[0:-1] ) ]
+    if isinstance( lhs, (str, unicode) ) and isinstance( rhs, (str, unicode) ):
+        #Generate the bigrams
+        lhs =  [ lhs[index : index + 2 ] for index, _ in enumerate( lhs[0:-1] ) ]
+        rhs =  [ rhs[index : index + 2 ] for index, _ in enumerate( rhs[0:-1] ) ]
 
-    inter = len(set(lhsbi).intersection( set(rhsbi) ) )
-    return ( 2 * inter ) / float( len(lhsbi) + len(rhsbi) )
+    inter = len(set(lhs).intersection( set(rhs) ) )
+    return ( 2 * inter ) / float( len(lhs) + len(rhs) )
 
 def soundex( s ):
     """
