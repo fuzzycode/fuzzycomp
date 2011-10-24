@@ -1,4 +1,4 @@
-# Copyright (C) 2011  Björn Larsson
+# Copyright (C) 2011  Bjoern Larsson
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,3 +12,27 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from distutils.core import setup
+
+setup(
+    name = "fuzzycomp",
+    version = "0.1.0",
+    packages = ["fuzzycomp"],
+    author = "Bjoern Larsson",
+    author_email = "b.e.larsson@gmail.com",
+    url = "http://code.google.com/p/fuzzycomp/",
+    download_url = "http://code.google.com/p/fuzzycomp/downloads/list",
+    license = "GPLv3",
+    description="A package implementing various sequence/string comparison algorithms.",
+    keywords = ["comparison", "fuzzy"],
+    classifiers = [
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
+        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Developers",
+        "Development Status :: 2 - Pre-Alpha",
+        "Topic :: Text Processing",
+        "Topic :: Utilities"]
+)
