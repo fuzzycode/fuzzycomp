@@ -20,7 +20,7 @@ setup(
     version = "0.1.0",
     packages = ["fuzzycomp"],
     author = "Bjoern Larsson",
-    author_email = "b.e.larsson@gmail.com",
+    author_email = "fuzzycomp@googlegroups.com",
     url = "http://code.google.com/p/fuzzycomp/",
     download_url = "http://code.google.com/p/fuzzycomp/downloads/list",
     license = "GPLv3",
