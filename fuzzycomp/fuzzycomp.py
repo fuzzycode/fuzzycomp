@@ -17,9 +17,11 @@
 
 from exceptions import IndexError, ValueError
 from math import floor
+import itertools
+import re
 
 __all__ = ["levenshtein_distance", "jaccard_distance", "soerensen_index", "hamming_distance",
-           "lcs_length", "jaro_distance", "jaro_winkler", "dice_coefficient", "soundex" ]
+           "lcs_length", "jaro_distance", "jaro_winkler", "dice_coefficient", "soundex", "nysiis" ]
 
 class Matrix(object):
     def __init__(self, rows, cols, default = 0):
@@ -54,7 +56,7 @@ class Matrix(object):
 def levenshtein_distance( lhs, rhs ):
     """
     Calculates the Levenshtein distance between two strings.
-    The comparison is case insensitive.
+    The comparison is case sensitive.
 
     See Wikipedia_ for more info on the Levenshtein distance.
     .. _Wikipedia : https://secure.wikimedia.org/wikipedia/en/wiki/Levenshtein_distance
@@ -66,8 +68,9 @@ def levenshtein_distance( lhs, rhs ):
     :raise: ValueError if any of the strings is empty.
     """
 
-    if not lhs or not rhs:
-        raise ValueError("Strings can not be empty")
+    if not lhs or not rhs: raise ValueError("Input cannot be empty")
+    if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
+    
 
     m = Matrix( len(lhs), len(rhs) )
 
@@ -96,6 +99,10 @@ def jaccard_distance( lhs, rhs ):
     :param rhs: Second string to match
     :return: A float in the range [ 0.0, 1.0 ]. 0.0 indicates a perfect match
     """
+
+    if not lhs or not rhs: raise ValueError("Input cannot be empty")
+    if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
+
     s1 = set( lhs )
     s2 = set( rhs )
 
@@ -112,6 +119,10 @@ def soerensen_index( lhs, rhs ):
     :param rhs:
     :return: A value in the range [0.0 , 1.0]. 1.0 Indicates a perfect match
     """
+
+    if not lhs or not rhs: raise ValueError("Input can not be empty")
+    if type(lhs) != type(rhs): raise ValueError( "Input should be of the same type" )
+
     common = [ item for item in lhs if item in rhs ]
     return ( 2 * len( common ) ) / float(( len(lhs) + len(rhs) ))
 
@@ -124,6 +135,9 @@ def hamming_distance(lhs, rhs):
     :return:
     :raise: Value Error if both iterables are not equal length
     """
+    if not lhs or not rhs: raise ValueError("Input cannot be empty")
+    if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
+
     if len(lhs) == len(rhs):
         return sum(ch1 != ch2 for ch1, ch2 in zip(lhs, rhs))
     else:
@@ -140,6 +154,10 @@ def lcs_length(lhs, rhs):
     :param rhs:
     :return: A positive integer denoting the longest common subsequence
     """
+
+    if not lhs or not rhs: raise ValueError("Input cannot be empty")
+    if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
+
     m = Matrix( len(lhs) + 1, len(rhs) + 1)
 
     for i, char1 in zip( range(1 , len(lhs) + 1), lhs ):
@@ -185,6 +203,11 @@ def jaro_distance(lhs, rhs):
     :param rhs:
     :return:
     """
+
+    if not lhs or not rhs: raise ValueError("Input cannot be empty")
+    if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
+
+
     max_range = max( floor( float( max( len(lhs), len(rhs) ) ) / float( 2.0 ) ) - 1, 0)
 
     commons1, _len1 = _get_commons( lhs, rhs, max_range )
@@ -205,6 +228,11 @@ def jaro_winkler( lhs, rhs, prefix_scale = 0.1 ):
     :param prefix_scale:
     :return:
     """
+
+    if not lhs or not rhs: raise ValueError("Input cannot be empty")
+    if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
+
+
     dist = jaro_distance( lhs, rhs )
     prefix = _get_prefix( lhs, rhs )
     return dist + (prefix * prefix_scale * ( 1 - dist ))
@@ -213,6 +241,10 @@ def dice_coefficient(lhs, rhs):
     """
     https://secure.wikimedia.org/wikipedia/en/wiki/Dice%27s_coefficient
     """
+
+    if not lhs or not rhs: raise ValueError("Input can not be empty")
+    if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
+
 
     if isinstance( lhs, (str, unicode) ) and isinstance( rhs, (str, unicode) ):
         #Generate the bigrams
@@ -224,26 +256,107 @@ def dice_coefficient(lhs, rhs):
 
 def soundex( s ):
     """
+    Implements the simplified Soundex algorithm.
+
     Implements American soundex
     https://secure.wikimedia.org/wikipedia/en/wiki/Soundex
     """
+
+    if not s: raise ValueError("String can not be empty")
+    if not isinstance( s, ( str, unicode ) ): raise ValueError("Input must be string or unicode")
+
+
     KEY_LENGTH = 4
 
-    discard = ['a', 'e', 'h', 'i', 'o', 'u', 'w', 'y']
-    digit = { 'b' : '1', 'f' : '1', 'p' : '1', 'v' : '1',
-              'c' : '2', 'g' : '2', 'j' : '2', 'k' : '2', 'q' : '2', 's' : '2', 'x' : '2', 'z' : '2',
-              'd' : '3', 't' : '3',
-              'l' : '4',
-              'm' : '5', 'n' : '5',
-              'r' : '6' }
+    def to_digit( char ):
+        digit = { 'B' : '1', 'F' : '1', 'P' : '1', 'V' : '1',
+            'C' : '2', 'G' : '2', 'J' : '2', 'K' : '2', 'Q' : '2', 'S' : '2', 'X' : '2', 'Z' : '2',
+            'D' : '3', 'T' : '3',
+            'L' : '4',
+            'M' : '5', 'N' : '5',
+            'R' : '6' }
+        try:
+            return digit[char]
+        except KeyError:
+            return 0
 
-    soundx = s[0]
-    for char in s[1:]:
-        if not char in discard and soundx[-1] != digit[ char ] and len(soundx) < KEY_LENGTH:
-            soundx += digit[char]
+    s = str(s).upper()
+    s = re.sub(r'[^A-Z]+', '', s)
 
-    #Pad with 0 if resulting key is too short
-    while len(soundx) < KEY_LENGTH:
-        soundx += '0'
 
-    return soundx
+    code = s[0]
+    digits = [ to_digit( char ) for char in s ] #encode as digits
+    digits = [k for k, _ in itertools.groupby(digits)] #Remove all adjacent duplicates
+    digits = [ digit for digit in digits if digit != 0 ] #Remove all 0s
+
+    #if first letter was a coded as 0, it has been removed in previous steps
+    if to_digit( code ) == 0:
+        code += ''.join( digits )
+    else:
+        code += ''.join( digits[1:] )
+
+    #Pad with 0 and return the 4 char key
+    return (code + KEY_LENGTH*"0")[ :KEY_LENGTH ]
+
+
+def nysiis(name, truncate=True):
+    if not name: raise ValueError("Name can not be empty")
+    if not isinstance( name, (str, unicode) ): raise ValueError("Name must be sting or unicode")
+
+    vowels = ["A", "E", "I", "U", "O"]
+
+    name = str(name).upper().strip()
+
+    pre = [
+        (r'\s+JR\.?\s{0,}', ''),
+        (r'\s+SR\.?\s{0,}', ''),
+        (r'\s+[IVXMC]+\.?\s{0,}', ''),
+        ( r'[^A-Z]+', '' ),
+        (r'^MAC', 'MCC'),
+        (r'^KN', 'N'),
+        (r'K', 'C'),
+        (r'^P[HF]', 'FF'),
+        (r'^SCH', 'SSS'),
+        (r'[EI]E$', 'Y'),
+        (r'[DRN]T$', 'D'),
+        (r'[RN]D$', 'D')
+    ]
+
+    post = [
+        (r'EV', 'AF'),
+        (r'[AEIOU]', 'A'),
+        (r'Q', 'G'),
+        (r'Z', 'S'),
+        (r'M', 'N'),
+        (r'KN', 'N'),
+        (r'K', 'C'),
+        (r'SCH', 'SSS'),
+        (r'PH', 'FF'),
+        (r'([^%s])H' % ''.join( vowels ), r'\1'),
+        (r'(.)H(?=[^%s])' % ''.join( vowels ), r'\1'),
+        (r'[%s]W' % ''.join(vowels), 'A'),
+        (r'S+$', ''),
+        (r'AY$', 'Y'),
+        (r'A+$', '')
+    ]
+
+    for reg, sub in pre:
+        name = re.sub( reg, sub, name )
+
+    try:
+        code = name[0]
+    except IndexError:
+        raise ValueError("String is not encodable")
+
+    name = name[1:]
+
+    for reg, sub in post:
+        name = re.sub( reg, sub, name )
+
+    #remove all adjacent duplicates
+    code += ''.join([key for key, _ in itertools.groupby(name)])
+
+    if len( code ) > 6 and truncate:
+        return code[:6]
+    else:
+        return code
