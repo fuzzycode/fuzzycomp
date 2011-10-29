@@ -25,9 +25,6 @@ import sys
 # this saves us the superfluous implementation of a Matrix and should save us a lot of memory,
 # especially for long sequences
 
-#TODO: All algorithms work fine for valid input, but  all tests should be extended to do
-# exhaustive testing of invalid input as well.
-
 class BaseTester( unittest.TestCase ):
     def mixed_iterable_input(self, func, error = ValueError):
         self.assertRaises( error, func, "Hello", [1,5] )
@@ -304,6 +301,66 @@ class TestDiceCoefficient( BaseTester ):
     def test_mixed_input(self):
         """Function should raise ValueError if called with mixed input"""
         self.mixed_iterable_input( fuzzycomp.dice_coefficient )
+
+class TestTverskyIndex( unittest.TestCase ):
+    def test_valid_input(self):
+        """Function should return correct values under valid input"""
+        self.assertEqual(fuzzycomp.tversky_index("Hello", "Hello", 1.0, 1.0), 1.0 )
+        self.assertEqual(fuzzycomp.tversky_index("foo", "bar", 1.0, 1.0), 0.0 )
+
+
+    def test_case_sensitive(self):
+        """Function should be case sensitive"""
+        self.assertNotEqual( fuzzycomp.tversky_index("hello", "HELLO", 1.0, 1.0), 1.0 )
+
+
+    def test_non_zero_parameters(self):
+        """Function should raise ValueError if alpha or beta <= 0"""
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", "World", 0, 0.5 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", "World", 0.5, 0.0 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", "World", 0.0, 0.0 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", "World", -0.5, 0.5 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", "World", 0.5, -1.0 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", "World", -0.5, -2.0 )
+
+    def test_dice_similarity(self):
+        """If alpha=beta=0.5 function should produce the same result as Dice Coefficient"""
+        self.assertEqual( fuzzycomp.tversky_index("night", "nacht", 0.5, 0.5),
+            fuzzycomp.dice_coefficient("night", "nacht") )
+
+    def test_empty_input(self):
+        """Function should raise ValueError if called with empty input"""
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "", "Hello", 1.0, 1.5 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", "", 0.2, 0.7 )
+
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, [], [1,2], 0.4, 1.5 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, [1,2], [], 1.6, 0.7 )
+
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, tuple(), (1,2), 0.9, 0.7 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, (1,2), tuple(), 0.7, 0.7 )
+
+    def test_iterable_input(self):
+        """Function should return correct values when called with valid iterables as input"""
+        self.assertEqual(fuzzycomp.tversky_index(["He", "el", "ll", "lo"],
+            ["He", "el", "ll", "lo"], 1.0, 1.0),  1.0 )
+        self.assertEqual(fuzzycomp.tversky_index(["fo", "oo"], ["ba", "ar"], 1.0, 1.0), 0.0 )
+
+        self.assertEqual(fuzzycomp.tversky_index(("He", "el", "ll", "lo"),
+            ("He", "el", "ll", "lo"), 1.0, 1.0),  1.0 )
+        self.assertEqual(fuzzycomp.tversky_index(("fo", "oo"), ("ba", "ar"), 1.0, 1.0), 0.0 )
+
+
+    def test_mixed_input(self):
+        """Function should raise ValueError if called with mixed input"""
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", [1,5], 0.8, 0.8 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, [1,5], "Hello", 0.3, 1.4 )
+
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, "Hello", (1,5), 1.5, 1.4 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, (1,5), "Hello", 1.0, 1.0 )
+
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, (1,5), [1,5], 0.5, 0.5 )
+        self.assertRaises( ValueError, fuzzycomp.tversky_index, [1,5], (1,5), 4, 8 )
+
 
 class TestSoundex( unittest.TestCase ):
     def test_valid_input(self):

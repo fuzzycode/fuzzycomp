@@ -21,7 +21,8 @@ import itertools
 import re
 
 __all__ = ["levenshtein_distance", "jaccard_distance", "soerensen_index", "hamming_distance",
-           "lcs_length", "jaro_distance", "jaro_winkler", "dice_coefficient", "soundex", "nysiis" ]
+           "lcs_length", "jaro_distance", "jaro_winkler", "dice_coefficient", "tversky_index",
+           "soundex", "nysiis" ]
 
 class Matrix(object):
     def __init__(self, rows, cols, default = 0):
@@ -253,6 +254,28 @@ def dice_coefficient(lhs, rhs):
 
     inter = len(set(lhs).intersection( set(rhs) ) )
     return ( 2 * inter ) / float( len(lhs) + len(rhs) )
+
+def tversky_index( lhs, rhs, alpha, beta ):
+    def pairwise(iterable):
+        "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+        a, b = itertools.tee(iterable)
+        next(b, None)
+        return itertools.izip(a, b)
+
+    if alpha <= 0 or beta <= 0: raise ValueError("Alpha and Beta must be greater than 0")
+    if not lhs or not rhs: raise ValueError("Input can not be empty")
+    if type(lhs) != type(rhs): raise ValueError("Input must be of teh same type")
+
+    if isinstance( lhs, (str, unicode) ) and isinstance( rhs, (str, unicode) ):
+        lhs = [ char1 + char2 for char1, char2 in pairwise( lhs ) ]
+        rhs = [ char1 + char2 for char1, char2 in pairwise( rhs ) ]
+
+
+    lhs = set( lhs )
+    rhs = set( rhs )
+
+    return float( len( lhs & rhs ) ) / \
+           ( float( len( lhs & rhs ) ) + alpha * len( lhs -rhs ) + beta * len( rhs - lhs ))
 
 def soundex( s ):
     """
