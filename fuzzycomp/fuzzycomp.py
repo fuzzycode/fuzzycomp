@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 # Copyright (C) 2011  Bjoern Larsson
 #
 # This program is free software: you can redistribute it and/or modify
@@ -439,3 +442,40 @@ def metaphone(name, length = 4):
         return name[:length]
     else:
         return name
+
+def cologne_phonetic(name):
+    if not name: raise ValueError("Name can not be empty")
+    if not isinstance( name, (str, unicode) ): raise ValueError("Name must be string or unicode")
+
+    name = str(name).upper().strip()
+
+    rules = [
+        (r'[^A-Z]+', ''),
+        (r'[AEIJOUYÄÖÜß]+', '0'),
+        (r'P(?!H)', '1'),
+        (r'[DT](?![CSZ])', '2'),
+        (r'P(?=H)', '3'),
+        (r'(?<=^)C(?=[AHKLOQRUX])', '4'),
+        (r'(?<![SZ])C(?=[AHKOQUX])', '4'),
+        (r'(<![CKQ])X', '48'),
+        (r'(?<=[SZ])C', '8'),
+        (r'(?<=^)C(?![AHKLOQRUX])', '8'),
+        (r'C(?![AHKOQUX])', '8'),
+        (r'[DT](?=[CSZ])', ''),
+        (r'(?<=[CKQ])X', ''),
+        (r'[FVW]', '3'),
+        (r'H', ''),
+        (r'B', '1'),
+        (r'[GKQ]', '4'),
+        (r'[SZ]', '8'),
+        (r'R', '7'),
+        (r'L', '5'),
+        (r'[MN]', '6'),
+        (r'(\d)\1+', r'\1'), #remove duplicates
+        (r'0+', ''), #Remove all 0
+    ]
+
+    for rule in rules:
+        name = re.sub( rule[0], rule[1], name )
+
+    return name

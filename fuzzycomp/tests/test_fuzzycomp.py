@@ -693,5 +693,43 @@ class TestMetaphone(unittest.TestCase):
         for name in names:
             self.assertEqual( fuzzycomp.metaphone(name.lower()), fuzzycomp.metaphone( name.upper() ) )
 
+class TestColognePhonetic( unittest.TestCase ):
+    def test_valid_input(self):
+        """Function should return valid results under valid input"""
+        names = [
+            ("Breschnew", "17863"),
+            ("Müller-Lüdenscheidt", "65752682")
+        ]
+
+        for name in names:
+            self.assertEqual( fuzzycomp.cologne_phonetic( name[0] ), name[1] )
+
+    def test_non_strings(self):
+        """Function should raise ValueError when provided with input not being str or unicode"""
+        self.assertRaises( ValueError, fuzzycomp.cologne_phonetic, ["Hello"] )
+
+    def test_empty_input(self):
+        """Function should raise ValueError when provided with empty input"""
+        self.assertRaises( ValueError, fuzzycomp.cologne_phonetic, "" )
+
+    def test_case(self):
+        """Function should be case insensitive"""
+        self.assertEqual( fuzzycomp.cologne_phonetic("breschnew"),
+                          fuzzycomp.cologne_phonetic("BRESCHNEW") )
+
+    def test_non_encodable_strings(self):
+        """Function should return an empty string if it can not be encoded"""
+        self.assertEqual( fuzzycomp.cologne_phonetic("!%&)#=&#"), "" )
+
+    def test_non_encodable_chars(self):
+        """Non-encodable chars should be ignored"""
+
+    def test_umlauts(self):
+        """Umlauts should be ignored"""
+
+    def test_trimmable_chars(self):
+        """Whitespace should be removed in front and after the name"""
+        self.assertEqual( fuzzycomp.cologne_phonetic("\t\n  Breschnew \t\n  "), "17863" )
+
 if __name__ == "__main__":
     sys.exit( unittest.main() )
