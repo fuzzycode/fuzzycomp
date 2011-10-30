@@ -383,3 +383,59 @@ def nysiis(name, truncate=True):
         return code[:6]
     else:
         return code
+
+def metaphone(name, length = 4):
+    if not name: raise ValueError("Name can not be empty")
+    if not isinstance( name, (str, unicode) ): raise ValueError("Name must be string or unicode")
+
+    vowels = [ "A", "E", "I", "O", "U" ]
+
+    rules = [
+        (r'[^A-Z]+', ''),
+        (r'([ABCDEFHIJKLMNOPQRSTUVXYZ])\1+', r'\1' ),
+        ( r'^AE', 'E'),
+        ( r'^[GKP]N', 'N'),
+        ( r'^WR', 'R'),
+        ( r'^X', 'S' ),
+        ( r'^WH', 'W' ),
+        ( r'MB$', 'M'),
+        ( r'X', 'KS' ),
+        ( r'(?!^)C(IA|H)', 'X'),
+        ( r'(?!^)C(?=[IEY])', 'S' ),
+        ( r'(?<=\SS)C(?=[IEY])', 'S'),
+        ( r'C', 'K' ),
+        ( r'(?!^)D(?=G([IEY]\S+))', 'J' ),
+        ( r'D', 'T' ),
+        ( r'(?!^)G(?=H[^%s])' % ''.join(vowels), '' ),
+        ( r'(?!^)GN(?:ED)?$', '' ),
+        ( r'(?<=\SD)G(?=[IEY]\S+)', '' ),
+        ( r'^G(?=[IEY])', 'J' ),
+        ( r'(?<!G)G(?=[IEY])', 'J' ),
+        ( r'G', 'K' ),
+        ( r'(?<=[%s])H(?=\b|[^%s])' %( ''.join(vowels), ''.join(vowels) ), '' ),
+        ( r'(?<=\S[CSPTG]H)H(?=\S+)', '' ),
+        ( r'(?<=C)K', '' ),
+        ( r'P(?=H)', 'F' ),
+        ( r'Q', 'K' ),
+        ( r'SH', 'X' ),
+        ( r'(?!^)S(?=I[OA]\S+)', 'X' ),
+        ( r'(?!^)T(?=I[OA]\S+)', 'X' ),
+        ( r'TH', '0' ),
+        ( r'(?!^)T(?=CH\S+)', '' ),
+        ( r'V', 'F' ),
+        ( r'W(?=[^%s])' % ''.join(vowels), '' ),
+        ( r'Y(?=\b|[^%s])' % ''.join(vowels), '' ),
+        ( r'Z', 'S' ),
+        ( r'(?!^)[%s]+' % ''.join(vowels), '' ),
+    ]
+
+
+    name = str(name).upper()
+
+    for rule in rules:
+        name = re.sub( rule[0], rule[1], name )
+
+    if len(name) > length:
+        return name[:length]
+    else:
+        return name

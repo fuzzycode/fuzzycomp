@@ -477,6 +477,8 @@ class TestNYSIIS( unittest.TestCase ):
             ("CASSTEVENS", "CASTAFAN"),
             ("WESTPHAL", "WASTFAL"),
             ("SHRIVER", "SHRAVAR"),
+            ("CARRAWAY", "CARAY"),
+            ("YAMADA", "YANAD"),
         ]
 
         for name in names:
@@ -542,6 +544,154 @@ class TestNYSIIS( unittest.TestCase ):
 
         for name in names:
             self.assertEqual( fuzzycomp.nysiis(name.lower()), fuzzycomp.nysiis( name.upper() ) )
+
+
+class TestMetaphone(unittest.TestCase):
+    def test_valid_input(self):
+        """Algorithm should return correct values under valid input"""
+
+        names = [
+            ("ANASTHA",            "ANS0"),
+            ("DAVIS-CARTER",       "TFSK"),
+            ("ESCARMANT",          "ESKR"),
+            ("MCCALL",             "MKL"),
+            ("MCCROREY",           "MKRR"),
+            ("MERSEAL",            "MRSL"),
+            ("PIEURISSAINT",       "PRSN"),
+            ("ROTMAN",             "RTMN"),
+            ("SCHEVEL",            "SXFL"),
+            ("SCHROM",             "SXRM"),
+            ("SEAL",               "SL"),
+            ("SPARR",              "SPR"),
+            ("STARLEPER",          "STRL"),
+            ("THRASH",             "0RX"),
+            ("ANASTHA", "ANS0"),
+            ("DAVIS-CARTER", "TFSK"),
+            ("ESCARMANT", "ESKR"),
+            ("MCCALL", "MKL"),
+            ("MCCROREY", "MKRR"),
+            ("MERSEAL", "MRSL"),
+            ("PIEURISSAINT", "PRSN"),
+            ("ROTMAN", "RTMN"),
+            ("SCHEVEL", "SXFL"),
+            ("SCHROM", "SXRM"),
+            ("SEAL", "SL"),
+            ("SPARR", "SPR"),
+            ("STARLEPER", "STRL"),
+            ("THRASH", "0RX"),
+            ("LOGGING", "LKKN"),
+            ("LOGIC", "LJK"),
+            #("JUDGES", "JJS"),
+            ("SHOOS", "XS"),
+            ("SHOES", "XS"),
+            ("CHUTE", "KHT"),
+            ("SCHUSS", "SXS"),
+            ("OTTO", "OT"),
+            ("ERIC", "ERK"),
+            ("DAVE", "TF"),
+            ("CATHERINE", "K0RN"),
+            ("KATHERINE", "K0RN"),
+            ("AUBREY", "ABR"),
+            ("BRYAN", "BRYN"),
+            ("BRYCE", "BRS"),
+            ("STEVEN", "STFN"),
+            ("RICHARD", "RXRT"),
+            ("HEIDI", "HT"),
+            ("AUTO", "AT"),
+            ("MAURICE", "MRS"),
+            ("RANDY", "RNT"),
+            ("CAMBRILLO", "KMBR"),
+            ("BRIAN", "BRN"),
+            ("RAY", "R"),
+            ("GEOFF", "JF"),
+            ("BOB", "BB"),
+            ("AHA", "AH"),
+            ("AAH", "A"),
+            ("PAUL", "PL"),
+            ("BATTLEY", "BTL"),
+            ("WROTE", "RT"),
+            ("THIS", "0S"),
+        ]
+
+        for name in names:
+            self.assertEquals( fuzzycomp.metaphone( name[0] ), name[1])
+
+    def test_longer_codes(self):
+        """Function should return correct values when longer codes are used"""
+        self.assertEqual( fuzzycomp.metaphone( "DAVIS-CARTER", 7 ), "TFSKRTR" )
+        self.assertEqual( fuzzycomp.metaphone( "DAVIS-CARTER", 6 ), "TFSKRT" )
+        self.assertEqual( fuzzycomp.metaphone( "DAVIS-CARTER", 5 ), "TFSKR" )
+        self.assertEqual( fuzzycomp.metaphone( "ESCARMANT", 7 ), "ESKRMNT" )
+        self.assertEqual( fuzzycomp.metaphone( "STARLEPER", 6 ), "STRLPR" )
+        self.assertEqual( fuzzycomp.metaphone( "CAMBRILLO", 5 ), "KMBRL" )
+        self.assertEqual( fuzzycomp.metaphone( "BRYCE", 7 ), "BRS" )
+
+    def test_empty_string(self):
+        """function should raise ValueError when provided with an empty string"""
+        self.assertRaises( ValueError, fuzzycomp.metaphone, "" )
+
+    def test_non_encodable_chars(self):
+        """Non-encodable chars should be ignored"""
+        names = ["-testing", "t-esting", "te-sting", "tes-ting", "test-ing", "testi-ng",
+                 "testin-g", "testing-"]
+        key = "TSTN"
+        for name in names:
+            self.assertEquals( fuzzycomp.metaphone(name), key )
+
+        self.assertEquals( fuzzycomp.metaphone("test>ing"), key )
+
+    def test_non_encodable_strings(self):
+        """Function should return an empty string if it can not be encoded"""
+        self.assertEqual( fuzzycomp.metaphone("!&(#=#/%#?+§"), "" )
+        for char in "!&(#=#/%#?+§":
+            self.assertEqual( fuzzycomp.metaphone(char), "" )
+
+
+    def test_non_string(self):
+        """function should raise ValueError when provided with a value that is not a string"""
+        data = [ 2,
+                [2, 3, 6],
+                ["hello", "world"],
+                {"Hello" : "World"} ]
+
+        for d in data:
+            self.assertRaises( ValueError, fuzzycomp.metaphone, d )
+
+    def test_equal_code(self):
+        """All listed names should produce the same Metaphone key"""
+
+        name_list = [
+            ("White", "Wade", "Wait", "Waite", "Wat", "Whit", "Wiatt", "Wit", "Wittie", "Witty"),
+            ("Albert","Ailbert", "Alberik", "Albert", "Alberto" ),
+            ("Gary","Carie", "Caro", "Carree", "Carri", "Carrie", "Carry","Cary","Cora","Corey",
+             "Cori", "Corie", "Correy"),
+            ("John", "Gina", "Ginni","Ginnie","Ginny","Jaine","Jan","Jana","Jane","Janey",
+             "Jania","Janie","Janna","Jany","Jayne"),
+            ("Knight", "Nat","Nata","Natty","Neda","Nedda","Nedi","Netta", "Netti"),
+            ("Mary", "Mari", "Maria","Marie","Mary","Maura","Maure","Meara","Merrie","Merry",
+             "Mira","Moira"),
+            ("Paris", "Pearcy", "Perris", "Piercy", "Pierz", "Pryse"),
+            ("Peter","Peadar", "Peder", "Pedro", "Peter", "Petr", "Peyter", "Pieter", "Pietro"),
+            ("Ray", "Ray", "Rey", "Roi", "Roy", "Ruy" ),
+            ("Susan","Susan", "Susana","Susann","Susanna","Susannah","Susanne","Suzann"),
+            ("Wright","Rota", "Rudd", "Ryde"),
+            ("Xalan", "Selena", "Selene", "Selina", "Seline","Suellen")
+        ]
+
+        for names in name_list:
+            code = fuzzycomp.metaphone( names[0] )
+            for name in names:
+                _c = fuzzycomp.metaphone( name )
+                self.assertEquals( _c, code )
+
+    def test_case_insensitive(self):
+        """Function should be case insensitive"""
+        names = ["Wade", "Wait", "Alberik", "Albert", "Cari", "Caria", "Ginnie", "Ginny", "Nat",
+                 "Nata", "Natty", "Meara", "Merrie", "Pearcy", "Perris", "Susana", "Susann",
+                 "Rudd", "Ryde", "Selena", "Selene" ]
+
+        for name in names:
+            self.assertEqual( fuzzycomp.metaphone(name.lower()), fuzzycomp.metaphone( name.upper() ) )
 
 if __name__ == "__main__":
     sys.exit( unittest.main() )
