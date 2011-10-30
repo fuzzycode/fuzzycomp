@@ -723,9 +723,11 @@ class TestColognePhonetic( unittest.TestCase ):
 
     def test_non_encodable_chars(self):
         """Non-encodable chars should be ignored"""
+        self.assertEqual( fuzzycomp.cologne_phonetic("Müller-Lüdenscheidt"), "65752682" )
 
     def test_umlauts(self):
         """Umlauts should be ignored"""
+        self.assertEqual( fuzzycomp.cologne_phonetic("Müller-Lüdenscheidt"), "65752682" )
 
     def test_trimmable_chars(self):
         """Whitespace should be removed in front and after the name"""
