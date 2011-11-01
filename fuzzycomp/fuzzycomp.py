@@ -25,7 +25,7 @@ import re
 
 __all__ = ["levenshtein_distance", "jaccard_distance", "soerensen_index", "hamming_distance",
            "lcs_length", "jaro_distance", "jaro_winkler", "dice_coefficient", "tversky_index",
-           "soundex", "nysiis" ]
+           "soundex", "nysiis", "metaphone", "cologne_phonetic" ]
 
 class Matrix(object):
     def __init__(self, rows, cols, default = 0):
@@ -59,19 +59,16 @@ class Matrix(object):
 
 def levenshtein_distance( lhs, rhs ):
     """
+    :param lhs: The object to compare
+    :param rhs: The object to compare with
+    :return: An int >= 0 representing the Levenshtein Distance.
+    :raise: ValueError
+
     Calculates the Levenshtein distance between two strings.
     The comparison is case sensitive.
 
-    See Wikipedia_ for more info on the Levenshtein distance.
-    .. _Wikipedia : https://secure.wikimedia.org/wikipedia/en/wiki/Levenshtein_distance
-
-    :param lhs: First string
-    :param rhs: Second string
-    :return: An integer representing the distance between the strings. The lower value the better
-     match. 0 indicates a perfect match.
-    :raise: ValueError if any of the strings is empty.
+    https://secure.wikimedia.org/wikipedia/en/wiki/Levenshtein_distance
     """
-
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
     if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
     
@@ -96,14 +93,14 @@ def levenshtein_distance( lhs, rhs ):
 
 def jaccard_distance( lhs, rhs ):
     """
+    :param lhs: The object to compare
+    :param rhs: The object to compare with
+    :return: A float in the range [0.0, 1.0]
+    :raise: ValueError
+
     Calculates the Jaccard Distance.
     See https://secure.wikimedia.org/wikipedia/en/wiki/Jaccard_index for details
-
-    :param lhs: First string to match
-    :param rhs: Second string to match
-    :return: A float in the range [ 0.0, 1.0 ]. 0.0 indicates a perfect match
     """
-
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
     if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
 
@@ -115,29 +112,14 @@ def jaccard_distance( lhs, rhs ):
     except ZeroDivisionError:
         return 1
 
-def soerensen_index( lhs, rhs ):
-    """
-    https://secure.wikimedia.org/wikipedia/en/wiki/S%C3%B8rensen_similarity_index
-
-    :param lhs:
-    :param rhs:
-    :return: A value in the range [0.0 , 1.0]. 1.0 Indicates a perfect match
-    """
-
-    if not lhs or not rhs: raise ValueError("Input can not be empty")
-    if type(lhs) != type(rhs): raise ValueError( "Input should be of the same type" )
-
-    common = [ item for item in lhs if item in rhs ]
-    return ( 2 * len( common ) ) / float(( len(lhs) + len(rhs) ))
-
 def hamming_distance(lhs, rhs):
     """
+    :param lhs: The object to compare
+    :param rhs: The object to compare with
+    :return: An int >= 0 representing the Hamming Distance between the two objects.
+    :raise: ValueError
+
     https://secure.wikimedia.org/wikipedia/en/wiki/Hamming_distance
-    
-    :param lhs:
-    :param rhs:
-    :return:
-    :raise: Value Error if both iterables are not equal length
     """
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
     if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
@@ -150,13 +132,15 @@ def hamming_distance(lhs, rhs):
 
 def lcs_length(lhs, rhs):
     """
+    :param lhs: The object to compare
+    :param rhs: The object to compare with
+    :return: An int >= 0 indicating the Longest Common Subsequence.
+    :raise: ValueError
+
     Calculates the longest common subsequence.
 
     https://secure.wikimedia.org/wikipedia/en/wiki/Longest_common_subsequence_problem
-    
-    :param lhs:
-    :param rhs:
-    :return: A positive integer denoting the longest common subsequence
+
     """
 
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
@@ -176,11 +160,11 @@ def lcs_length(lhs, rhs):
 
 def _get_prefix( lhs, rhs, max_prefix = 4 ):
     """
-    
     :param lhs:
     :param rhs:
     :param max_prefix:
     :return:
+    
     """
     length = min( len(lhs), min(rhs), max_prefix )
 
@@ -191,23 +175,24 @@ def _get_prefix( lhs, rhs, max_prefix = 4 ):
 
 def _get_commons( lhs, rhs, dist ):
     """
-
     :param lhs:
     :param rhs:
     :param dist:
     :return:
+
+
     """
     commons = [ char for index, char in enumerate( lhs ) if char in rhs[ int( max( 0, index - dist ) ) : int( min( index + dist, len(rhs) ) ) ] ]
     return commons, len(commons)
 
 def jaro_distance(lhs, rhs):
     """
+    :param lhs: The object to compare
+    :param rhs: The object to compare with
+    :return: A float in the range [0.0, 1.0]
+    :raise: ValueError
 
-    :param lhs:
-    :param rhs:
-    :return:
     """
-
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
     if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
 
@@ -225,12 +210,15 @@ def jaro_distance(lhs, rhs):
 
 def jaro_winkler( lhs, rhs, prefix_scale = 0.1 ):
     """
-    https://secure.wikimedia.org/wikipedia/en/wiki/Jaro%E2%80%93Winkler_distance
+    :param lhs: The object to compare
+    :param rhs: The object to compare with
+    :param prefix_scale: The scale factor to use for common prefixes. The value should not be larger \
+    than **0.25**, although this is not enforced by the function.
+    :return: A float >= 0.0. For 0.0 <= *prefix_scale* <= 0.25. The return value will be in the \
+    range [0.0, 1.0]
+    :raise: ValueError
 
-    :param lhs:
-    :param rhs:
-    :param prefix_scale:
-    :return:
+    https://secure.wikimedia.org/wikipedia/en/wiki/Jaro%E2%80%93Winkler_distance
     """
 
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
@@ -243,6 +231,11 @@ def jaro_winkler( lhs, rhs, prefix_scale = 0.1 ):
 
 def dice_coefficient(lhs, rhs):
     """
+    :param lhs: The object to compare
+    :param rhs: The object to compare with
+    :return: A float in the range [0.0, 1.0]
+    :raise: ValueError
+
     https://secure.wikimedia.org/wikipedia/en/wiki/Dice%27s_coefficient
     """
 
@@ -259,15 +252,26 @@ def dice_coefficient(lhs, rhs):
     return ( 2 * inter ) / float( len(lhs) + len(rhs) )
 
 def tversky_index( lhs, rhs, alpha, beta ):
+    """
+    :param lhs: The object to compare
+    :param rhs: The object to compare with
+    :param alpha:
+    :param beta:
+    :return: A float in the range [0.0, 1.0]
+    :raise: ValueError
+
+    
+    """
+
     def pairwise(iterable):
-        "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+        """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
         a, b = itertools.tee(iterable)
         next(b, None)
         return itertools.izip(a, b)
 
     if alpha <= 0 or beta <= 0: raise ValueError("Alpha and Beta must be greater than 0")
     if not lhs or not rhs: raise ValueError("Input can not be empty")
-    if type(lhs) != type(rhs): raise ValueError("Input must be of teh same type")
+    if type(lhs) != type(rhs): raise ValueError("Input must be of the same type")
 
     if isinstance( lhs, (str, unicode) ) and isinstance( rhs, (str, unicode) ):
         lhs = [ char1 + char2 for char1, char2 in pairwise( lhs ) ]
@@ -280,16 +284,20 @@ def tversky_index( lhs, rhs, alpha, beta ):
     return float( len( lhs & rhs ) ) / \
            ( float( len( lhs & rhs ) ) + alpha * len( lhs -rhs ) + beta * len( rhs - lhs ))
 
-def soundex( s ):
+def soundex( name ):
     """
+    :param name: The name to be encoded
+    :type name: str, unicode
+    :return: The encoded string
+    :raise: ValueError
+
     Implements the simplified Soundex algorithm.
 
     Implements American soundex
     https://secure.wikimedia.org/wikipedia/en/wiki/Soundex
     """
-
-    if not s: raise ValueError("String can not be empty")
-    if not isinstance( s, ( str, unicode ) ): raise ValueError("Input must be string or unicode")
+    if not name: raise ValueError("String can not be empty")
+    if not isinstance( name, ( str, unicode ) ): raise ValueError("Input must be string or unicode")
 
 
     KEY_LENGTH = 4
@@ -306,12 +314,12 @@ def soundex( s ):
         except KeyError:
             return 0
 
-    s = str(s).upper()
-    s = re.sub(r'[^A-Z]+', '', s)
+    name = str(name).upper()
+    name = re.sub(r'[^A-Z]+', '', name)
 
 
-    code = s[0]
-    digits = [ to_digit( char ) for char in s ] #encode as digits
+    code = name[0]
+    digits = [ to_digit( char ) for char in name ] #encode as digits
     digits = [k for k, _ in itertools.groupby(digits)] #Remove all adjacent duplicates
     digits = [ digit for digit in digits if digit != 0 ] #Remove all 0s
 
@@ -321,11 +329,23 @@ def soundex( s ):
     else:
         code += ''.join( digits[1:] )
 
-    #Pad with 0 and return the 4 char key
+    #Pad with 0 and return the KEY_LENGTH char key
     return (code + KEY_LENGTH*"0")[ :KEY_LENGTH ]
 
 
 def nysiis(name, truncate=True):
+    """
+    :param name: The name to be encoded
+    :type name: str, unicode
+    :param truncate: Flag to control if the returned code should be truncated to 6 chars or not.\
+    For a true NYSIIS implementation, this should be True.
+    :type truncate: bool
+    :return: The encoded string
+    :raise: ValueError
+
+
+    """
+    
     if not name: raise ValueError("Name can not be empty")
     if not isinstance( name, (str, unicode) ): raise ValueError("Name must be sting or unicode")
 
@@ -388,6 +408,21 @@ def nysiis(name, truncate=True):
         return code
 
 def metaphone(name, length = 4):
+    """
+    :param name: The name to be encoded
+    :type name: str, unicode
+    :param length: The maximum length to use for the resulting code
+    :type length: int
+    :return: A string of maximum length *length*
+    :raise: ValueError
+
+    http://en.wikipedia.org/wiki/Metaphone
+    http://aspell.net/metaphone/metaphone-kuhn.txt
+
+    """
+
+    if not isinstance( length, int ): raise ValueError("Length must be an integer")
+    if length <= 0: raise ValueError("Length must be 0 or greater")
     if not name: raise ValueError("Name can not be empty")
     if not isinstance( name, (str, unicode) ): raise ValueError("Name must be string or unicode")
 
@@ -444,6 +479,14 @@ def metaphone(name, length = 4):
         return name
 
 def cologne_phonetic(name):
+    """
+    :param name: The name to be encoded
+    :type name: str, unicode
+    :returns: The encoded string
+    :raise: ValueError
+
+    https://secure.wikimedia.org/wikipedia/de/wiki/K%C3%B6lner_Phonetik
+    """
     if not name: raise ValueError("Name can not be empty")
     if not isinstance( name, (str, unicode) ): raise ValueError("Name must be string or unicode")
 
@@ -451,7 +494,6 @@ def cologne_phonetic(name):
 
     rules = [
         (r'[^A-Z]+', ''),
-        (r'[AEIJOUYÄÖÜß]+', '0'),
         (r'P(?!H)', '1'),
         (r'[DT](?![CSZ])', '2'),
         (r'P(?=H)', '3'),
@@ -471,6 +513,7 @@ def cologne_phonetic(name):
         (r'R', '7'),
         (r'L', '5'),
         (r'[MN]', '6'),
+        (r'[AEIJOUYÄÖÜß]+', '0'),
         (r'(\d)\1+', r'\1'), #remove duplicates
         (r'0+', ''), #Remove all 0
     ]

@@ -134,28 +134,6 @@ class TestJaccardDistance( BaseTester ):
         """function should raise ValueError if input is of mixed type"""
         self.mixed_iterable_input( fuzzycomp.jaccard_distance )
 
-class TestSoerensenIndex( BaseTester ):
-    def test_valid_input(self):
-        """Algorithm should return correct values under valid input"""
-        self.assertEqual( fuzzycomp.soerensen_index( "Hello", "Hello" ), 1.0 )
-        self.assertEqual( fuzzycomp.soerensen_index( "foo", "bar" ), 0.0 )
-
-    def test_empty_input(self):
-        """Function should raise ValueError if called with empty input"""
-        self.empty_iterable_input( fuzzycomp.soerensen_index )
-
-    def test_iterable_input(self):
-        """Function should return correct values when called with valid iterables as input"""
-        self.assertEqual( fuzzycomp.soerensen_index( [1 ,2, 3, 4, 5], [5, 4, 3, 2, 1] ), 1.0 )
-        self.assertEqual( fuzzycomp.soerensen_index( [1 ,2, 3, 4, 5], [6, 7, 8, 9, 10] ), 0.0 )
-
-        self.assertEqual( fuzzycomp.soerensen_index( (1 ,2, 3, 4, 5), (5, 4, 3, 2, 1) ), 1.0 )
-        self.assertEqual( fuzzycomp.soerensen_index( (1 ,2, 3, 4, 5), (6, 7, 8, 9, 10) ), 0.0 )
-
-    def test_mixed_input(self):
-        """Function should raise ValueError if called with mixed input"""
-        self.mixed_iterable_input( fuzzycomp.soerensen_index )
-
 class TestHammingDistance( BaseTester ):
     def test_valid_input(self):
         """Algorithm should return correct values under valid input"""
@@ -615,6 +593,18 @@ class TestMetaphone(unittest.TestCase):
 
         for name in names:
             self.assertEquals( fuzzycomp.metaphone( name[0] ), name[1])
+
+    def test_negative_length(self):
+        """Function should raise ValueError if passed a length <= 0"""
+        self.assertRaises( ValueError, fuzzycomp.metaphone,  "Paul", -1 )
+        self.assertRaises( ValueError, fuzzycomp.metaphone,  "Paul", 0 )
+
+    def test_non_int_length(self):
+        """Function should raise ValueError if the length argument is not an integer"""
+        self.assertRaises( ValueError, fuzzycomp.metaphone, "PAUL", 1.2 )
+        self.assertRaises( ValueError, fuzzycomp.metaphone, "PAUL", 0.2 )
+        self.assertRaises( ValueError, fuzzycomp.metaphone, "PAUL", 5.2 )
+        self.assertRaises( ValueError, fuzzycomp.metaphone, "PAUL", 12.2 )
 
     def test_longer_codes(self):
         """Function should return correct values when longer codes are used"""
