@@ -64,10 +64,8 @@ def levenshtein_distance( lhs, rhs ):
     :return: An int >= 0 representing the Levenshtein Distance.
     :raise: ValueError
 
-    Calculates the Levenshtein distance between two strings.
-    The comparison is case sensitive.
-
-    https://secure.wikimedia.org/wikipedia/en/wiki/Levenshtein_distance
+    Calculates the Levenshtein distance between two strings as described in more detail
+    `here <https://secure.wikimedia.org/wikipedia/en/wiki/Levenshtein_distance>`__ .
     """
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
     if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
@@ -98,8 +96,13 @@ def jaccard_distance( lhs, rhs ):
     :return: A float in the range [0.0, 1.0]
     :raise: ValueError
 
-    Calculates the Jaccard Distance.
-    See https://secure.wikimedia.org/wikipedia/en/wiki/Jaccard_index for details
+    Calculates the Jaccard Distance for the two objects. The full explanation can be found `here
+    <https://secure.wikimedia.org/wikipedia/en/wiki/Jaccard_index>`__. The equation used is as
+    follows.
+
+    .. math::
+        J_{\\delta}(lhs,rhs) = { { |lhs \\cup rhs| - |lhs \cap rhs| } \\over |lhs \\cup rhs| }
+
     """
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
     if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
@@ -119,7 +122,8 @@ def hamming_distance(lhs, rhs):
     :return: An int >= 0 representing the Hamming Distance between the two objects.
     :raise: ValueError
 
-    https://secure.wikimedia.org/wikipedia/en/wiki/Hamming_distance
+    Calculates the Hamming Distance between two sequences as described in more detail
+    `here <https://secure.wikimedia.org/wikipedia/en/wiki/Hamming_distance>`__ .
     """
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
     if type(lhs) != type(rhs): raise ValueError("Input should be of the same type")
@@ -137,10 +141,8 @@ def lcs_length(lhs, rhs):
     :return: An int >= 0 indicating the Longest Common Subsequence.
     :raise: ValueError
 
-    Calculates the longest common subsequence.
-
-    https://secure.wikimedia.org/wikipedia/en/wiki/Longest_common_subsequence_problem
-
+    Calculates the longest common subsequence as described in more detail
+    `here <https://secure.wikimedia.org/wikipedia/en/wiki/Longest_common_subsequence_problem>`__.
     """
 
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
@@ -189,8 +191,11 @@ def jaro_distance(lhs, rhs):
     """
     :param lhs: The object to compare
     :param rhs: The object to compare with
-    :return: A float in the range [0.0, 1.0]
+    :return: A float in the range [0.0, 1.0]. 1.0 denotes a perfect match.
     :raise: ValueError
+
+    Implements the Jaro Distance as described `here <https://secure.wikimedia
+    .org/wikipedia/en/wiki/Jaro%E2%80%93Winkler_distance>`__ .
 
     """
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
@@ -218,7 +223,15 @@ def jaro_winkler( lhs, rhs, prefix_scale = 0.1 ):
     range [0.0, 1.0]
     :raise: ValueError
 
-    https://secure.wikimedia.org/wikipedia/en/wiki/Jaro%E2%80%93Winkler_distance
+    Implements the Jaro Winkler Distance as described `here <https://secure.wikimedia
+    .org/wikipedia/en/wiki/Jaro%E2%80%93Winkler_distance>`__ .
+
+    The Jaro Winkler favours strings with a common prefix. The weight given to strings with
+    a common prefix is controlled using the *prefix_scale* parameter. The standard value for
+    *prefix_scale* for the Jaro Winkler distance is 0.1 and the value should normally not be
+    greater than 0.5 as this could produce distance values greater than 1.0.
+
+    For the common prefix, a maximum of 4 characters will be considered.
     """
 
     if not lhs or not rhs: raise ValueError("Input cannot be empty")
@@ -236,7 +249,15 @@ def dice_coefficient(lhs, rhs):
     :return: A float in the range [0.0, 1.0]
     :raise: ValueError
 
-    https://secure.wikimedia.org/wikipedia/en/wiki/Dice%27s_coefficient
+    Calculates the dice coefficient as described `here <https://secure.wikimedia
+    .org/wikipedia/en/wiki/Dice%27s_coefficient>`__ using the equation.
+
+    .. math::
+        s = \\frac{2 * | lhs \cap rhs |}{| lhs | + | rhs |}
+
+    When comparing strings, the bigrams are calculated for the both strings and they are then
+    compared, using the above equation.
+
     """
 
     if not lhs or not rhs: raise ValueError("Input can not be empty")
@@ -260,22 +281,23 @@ def tversky_index( lhs, rhs, alpha, beta ):
     :return: A float in the range [0.0, 1.0]
     :raise: ValueError
 
-    
+    Calculates the Tversky index for the two objects, as described `here <http://en.wikipedia
+    .org/wiki/Tversky_index>`__
+
+    .. math::
+        S(lhs, rhs) = \\frac{| lhs \\cap rhs |}{| lhs \\cap rhs | + \\alpha | lhs - rhs | + \\beta |
+        rhs - lhs |}
+
+    When comparing strings, the bigrams for the both strings are calculated and they are then
+    compared using the above equation.
     """
-
-    def pairwise(iterable):
-        """s -> (s0,s1), (s1,s2), (s2, s3), ..."""
-        a, b = itertools.tee(iterable)
-        next(b, None)
-        return itertools.izip(a, b)
-
     if alpha <= 0 or beta <= 0: raise ValueError("Alpha and Beta must be greater than 0")
     if not lhs or not rhs: raise ValueError("Input can not be empty")
     if type(lhs) != type(rhs): raise ValueError("Input must be of the same type")
 
     if isinstance( lhs, (str, unicode) ) and isinstance( rhs, (str, unicode) ):
-        lhs = [ char1 + char2 for char1, char2 in pairwise( lhs ) ]
-        rhs = [ char1 + char2 for char1, char2 in pairwise( rhs ) ]
+        lhs =  [ lhs[index : index + 2 ] for index, _ in enumerate( lhs[0:-1] ) ]
+        rhs =  [ rhs[index : index + 2 ] for index, _ in enumerate( rhs[0:-1] ) ]
 
 
     lhs = set( lhs )
@@ -351,7 +373,7 @@ def nysiis(name, truncate=True):
 
     vowels = ["A", "E", "I", "U", "O"]
 
-    name = str(name).upper().strip()
+    name = name.upper().strip()
 
     pre = [
         (r'\s+JR\.?\s{0,}', ''),
@@ -468,7 +490,7 @@ def metaphone(name, length = 4):
     ]
 
 
-    name = str(name).upper()
+    name = name.upper().strip()
 
     for rule in rules:
         name = re.sub( rule[0], rule[1], name )
@@ -490,7 +512,7 @@ def cologne_phonetic(name):
     if not name: raise ValueError("Name can not be empty")
     if not isinstance( name, (str, unicode) ): raise ValueError("Name must be string or unicode")
 
-    name = str(name).upper().strip()
+    name = name.upper().strip()
 
     rules = [
         (r'[^A-Z]+', ''),

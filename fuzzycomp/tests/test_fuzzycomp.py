@@ -102,7 +102,7 @@ class TestMatrix( unittest.TestCase ):
 
     def test_size(self):
         """Size value should correspond to that used to create the Matrix"""
-        self.assertTupleEqual( self.m.size(), self.size )
+        self.assertEqual( self.m.size(), self.size )
 
     def test_insertion(self):
         """Values should be properly stored in the Matrix"""
@@ -525,10 +525,8 @@ class TestNYSIIS( unittest.TestCase ):
 
 
 class TestMetaphone(unittest.TestCase):
-    def test_valid_input(self):
-        """Algorithm should return correct values under valid input"""
-
-        names = [
+    def setUp(self):
+        self.names =  [
             ("ANASTHA",             "ANS0"),
             ("DAVIS-CARTER",        "TFSK"),
             ("ESCARMANT",           "ESKR"),
@@ -591,8 +589,15 @@ class TestMetaphone(unittest.TestCase):
             ("THIS",                "0S"),
         ]
 
-        for name in names:
+    def test_valid_input(self):
+        """Algorithm should return correct values under valid input"""
+        for name in self.names:
             self.assertEquals( fuzzycomp.metaphone( name[0] ), name[1])
+
+    def test_unicode(self):
+        """Function should return valid results when passed valid unicode data"""
+        for name in self.names:
+            self.assertEquals( fuzzycomp.metaphone( unicode(name[0]) ), name[1])
 
     def test_negative_length(self):
         """Function should raise ValueError if passed a length <= 0"""
@@ -647,6 +652,18 @@ class TestMetaphone(unittest.TestCase):
         for d in data:
             self.assertRaises( ValueError, fuzzycomp.metaphone, d )
 
+    def test_trimmable_chars(self):
+        """Function should ignore trimmable chars in front and after the string"""
+        names = [
+            ("\r\t\n       RANDY \r\t\n    ",               "RNT"),
+            ("\r\t\n    CAMBRILLO\r\t\n    ",           "KMBR"),
+            ("\r\t\n    BRIAN\r\t\n    ",               "BRN"),
+            ("\r\t\n    RAY\r\t\n    ",                 "R")
+        ]
+        for name in names:
+            self.assertEquals( fuzzycomp.metaphone( name[0] ), name[1] )
+
+
     def test_equal_code(self):
         """All listed names should produce the same Metaphone key"""
 
@@ -684,15 +701,26 @@ class TestMetaphone(unittest.TestCase):
             self.assertEqual( fuzzycomp.metaphone(name.lower()), fuzzycomp.metaphone( name.upper() ) )
 
 class TestColognePhonetic( unittest.TestCase ):
-    def test_valid_input(self):
-        """Function should return valid results under valid input"""
-        names = [
+    def setUp(self):
+        self.names = [
             ("Breschnew", "17863"),
-            ("Müller-Lüdenscheidt", "65752682")
+            (u"Müller-Lüdenscheidt", "65752682")
         ]
 
-        for name in names:
+    def test_fummy(self):
+        #raise NotImplementedError()
+        pass
+
+    def test_valid_input(self):
+        """Function should return valid results under valid input"""
+        for name in self.names:
             self.assertEqual( fuzzycomp.cologne_phonetic( name[0] ), name[1] )
+
+    def test_unicode(self):
+        """Function should work properly with Unicode data"""
+        for name in self.names:
+            self.assertEqual( fuzzycomp.cologne_phonetic( unicode(name[0]) ), name[1] )
+
 
     def test_non_string(self):
         """Function should raise ValueError when provided with input not being str or unicode"""
@@ -729,5 +757,7 @@ class TestColognePhonetic( unittest.TestCase ):
         """Whitespace should be removed in front and after the name"""
         self.assertEqual( fuzzycomp.cologne_phonetic("\t\n  Breschnew \t\n  "), "17863" )
 
+print("Running tests")
 if __name__ == "__main__":
+    print("Running tests2")
     sys.exit( unittest.main() )
