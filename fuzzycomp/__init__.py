@@ -1,4 +1,6 @@
-# Copyright (C) 2011  Bjoern Larsson
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2011  Björn Larsson
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

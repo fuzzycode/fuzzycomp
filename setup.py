@@ -1,4 +1,6 @@
-# Copyright (C) 2011  Bjoern Larsson
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2011  Björn Larsson
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +21,7 @@ setup(
     name = "fuzzycomp",
     version = "0.1.0",
     packages = ["fuzzycomp"],
-    author = "Bjoern Larsson",
+    author = "Björn Larsson",
     author_email = "fuzzycomp@googlegroups.com",
     url = "http://code.google.com/p/fuzzycomp/",
     download_url = "http://code.google.com/p/fuzzycomp/downloads/list",
