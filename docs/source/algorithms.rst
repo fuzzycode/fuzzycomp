@@ -19,3 +19,6 @@ Phonetic
   .. autofunction:: fuzzycomp.nysiis
   .. autofunction:: fuzzycomp.metaphone
   .. autofunction:: fuzzycomp.cologne_phonetic
+
+Examples
+________

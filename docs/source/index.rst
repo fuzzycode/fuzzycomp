@@ -14,7 +14,6 @@ Contents:
    install
    algorithms
 
-   issues
    contact
 
 Indices and tables
