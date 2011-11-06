@@ -15,6 +15,6 @@ General
 -------
 To get in contact with the me regarding the project with questions,
 suggested improvements or any other reason, please contact me at fuzzycomp@googlegroups.com or
-follow me on twitter @fuzzycode.
+follow me on twitter `@fuzzycode <https://twitter.com/#!/fuzzycode>`_.
 
 
