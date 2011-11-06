@@ -17,3 +17,21 @@ Or by downloading and unpacking the desired version and from the consol executin
 
     python setup.py install
 
+
+Testing
+-------
+**Fuzzycomp** comes with a complete test suite included in the package. To run the test suite,
+do the following::
+
+ $ cd fuzzycomp/tests
+ $ python test_fuzzycomp.py
+
+And you should see something like this::
+
+ Running tests
+ Running tests2
+ ...............................................................................
+ ----------------------------------------------------------------------
+ Ran 79 tests in 0.096s
+
+ OK

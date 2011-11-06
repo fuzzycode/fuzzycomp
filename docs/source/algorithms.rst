@@ -21,7 +21,7 @@ Phonetic
   .. autofunction:: fuzzycomp.cologne_phonetic
 
 Examples
-________
+--------
 Using some of the comparison algorithms::
 
     >>> from fuzzycomp import fuzzycomp
