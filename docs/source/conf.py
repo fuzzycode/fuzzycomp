@@ -185,7 +185,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'fuzzycomp.tex', u'fuzzycomp Documentation',
-   u'Bjoern Larsson', 'manual'),
+   u'Björn Larsson', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -215,7 +215,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'fuzzycomp', u'fuzzycomp Documentation',
-     [u'Bjoern Larsson'], 1)
+     [u'Björn Larsson'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -228,7 +228,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'fuzzycomp', u'fuzzycomp Documentation', u'Bjoern Larsson',
+  ('index', 'fuzzycomp', u'fuzzycomp Documentation', u'Björn Larsson',
    'fuzzycomp', 'One line description of project.', 'Miscellaneous'),
 ]
 
