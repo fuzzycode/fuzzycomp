@@ -312,47 +312,48 @@ def soundex( name ):
     :return: The encoded string
     :raise: ValueError
 
-    Implements the simplified Soundex algorithm.
+    Implements the American Soundex Algorithm. The algorithm is described on `Wikipedia
+    <https://secure.wikimedia.org/wikipedia/en/wiki/Soundex>`__.
 
-    Implements American soundex
-    https://secure.wikimedia.org/wikipedia/en/wiki/Soundex
+    Calculates a 4 char code for the provided name formatted as LDDD,
+    where L is an upper case letter and D is a digit. If the resulting code is shorter than 4 char,
+    it is padded with zeros. 
+
+    .. note:: This implementation follows the standard American Soundex implementation. There are
+        `other <http://creativyst.com/Doc/Articles/SoundEx1/SoundEx1.htm>`__ suggested
+        implementations where the letters AEIOUHWY are first encoded as 0 and then removed after
+        duplicates have removed. One example where this would make a difference is the word "HERMAN"
+        that encodes to H650 using classic Soundex and to H655 using the suggested change.
+
+    
     """
+    
     if not name: raise ValueError("String can not be empty")
     if not isinstance( name, ( str, unicode ) ): raise ValueError("Input must be string or unicode")
 
 
     KEY_LENGTH = 4
 
-    def to_digit( char ):
-        digit = { 'B' : '1', 'F' : '1', 'P' : '1', 'V' : '1',
+    digit = { 'B' : '1', 'F' : '1', 'P' : '1', 'V' : '1',
             'C' : '2', 'G' : '2', 'J' : '2', 'K' : '2', 'Q' : '2', 'S' : '2', 'X' : '2', 'Z' : '2',
             'D' : '3', 'T' : '3',
             'L' : '4',
             'M' : '5', 'N' : '5',
             'R' : '6' }
-        try:
-            return digit[char]
-        except KeyError:
-            return 0
 
     name = str(name).upper()
     name = re.sub(r'[^A-Z]+', '', name)
-
+    name = re.sub( r'(?!^)[AEHIOUWY]', '', name )
 
     code = name[0]
-    digits = [ to_digit( char ) for char in name ] #encode as digits
-    digits = [k for k, _ in itertools.groupby(digits)] #Remove all adjacent duplicates
-    digits = [ digit for digit in digits if digit != 0 ] #Remove all 0s
 
-    #if first letter was a coded as 0, it has been removed in previous steps
-    if to_digit( code ) == 0:
-        code += ''.join( digits )
-    else:
-        code += ''.join( digits[1:] )
+    digits = [ digit[char] for char in name[1:] ]
+    digits = [k for k, _ in itertools.groupby(digits)] #Remove all adjacent duplicates
+
+    code += ''.join(digits) + KEY_LENGTH*"0"
 
     #Pad with 0 and return the KEY_LENGTH char key
-    return (code + KEY_LENGTH*"0")[ :KEY_LENGTH ]
-
+    return code[ :KEY_LENGTH ]
 
 def nysiis(name, truncate=True):
     """
@@ -364,6 +365,18 @@ def nysiis(name, truncate=True):
     :return: The encoded string
     :raise: ValueError
 
+    Implements the original New York State Identification and Intelligence System ( NYSIIS )
+    phonetic algorithm. The algorithm is described on `this <http://dropby.com/NYSIIS.html>`__
+    page and on `Wikipedia <http://en.wikipedia.org/wiki/New_York_State_Identification_and_Intelligence_System>`__ .
+
+    For the standard NYSIIS algorithm, the resulting code is truncated to a maximum of 6
+    characters, this could be changed by passing *truncate* = False to return the full length codes.
+
+    .. note:: There appears to be an error in the description in the `Wikipedia <http://en.wikipedia
+        .org/wiki/New_York_State_Identification_and_Intelligence_System>`__ description of the
+        algorithm. It is stated that KN -> N in the beginning of the word,
+        however several other sources suggest that it should be KN -> NN so that KNUTH -> NNAT. This
+        is the functionality that has been implemented.
 
     """
     
@@ -380,7 +393,7 @@ def nysiis(name, truncate=True):
         (r'\s+[IVXMC]+\.?\s{0,}', ''),
         ( r'[^A-Z]+', '' ),
         (r'^MAC', 'MCC'),
-        (r'^KN', 'N'),
+        (r'^KN', 'NN'),
         (r'K', 'C'),
         (r'^P[HF]', 'FF'),
         (r'^SCH', 'SSS'),
@@ -400,9 +413,9 @@ def nysiis(name, truncate=True):
         (r'SCH', 'SSS'),
         (r'PH', 'FF'),
         (r'([^%s])H' % ''.join( vowels ), r'\1'),
-        (r'(.)H(?=[^%s])' % ''.join( vowels ), r'\1'),
+        (r'(.)H[^%s]' % ''.join( vowels ), r'\1'),
         (r'[%s]W' % ''.join(vowels), 'A'),
-        (r'S+$', ''),
+        (r'S$', ''),
         (r'AY$', 'Y'),
         (r'A+$', '')
     ]
@@ -437,8 +450,15 @@ def metaphone(name, length = 4):
     :return: A string of maximum length *length*
     :raise: ValueError
 
-    http://en.wikipedia.org/wiki/Metaphone
-    http://aspell.net/metaphone/metaphone-kuhn.txt
+    There appear to be several different ways to implement the Metaphone algorithm. This seems to
+    come from the fact that the description and the implementation of the original algorithm from
+    Lawrence Philips do not correspond entirely.
+
+    This implementation aims at following the interpreted implementation presented by `Michael
+    Kuhn <http://aspell.net/metaphone/metaphone-kuhn.txt>`__. 
+
+    Normally the first four characters of the code are used for the Metaphone,
+    but the maximum length of the returned code can be controlled by passing the *length* argument.
 
     """
 
@@ -506,8 +526,23 @@ def cologne_phonetic(name):
     :returns: The encoded string
     :raise: ValueError
 
-    https://secure.wikimedia.org/wikipedia/de/wiki/K%C3%B6lner_Phonetik
+    The Cologne Phonetic Algorithm is a phonetic encoding algorithm specialised for the german
+    language. A description in english can be found on the manual page for `this <http://commons
+    .apache.org/codec/apidocs/org/apache/commons/codec/language/ColognePhonetic.html>`__ Java
+    implementation.
+
+
+    Wikipedia has a `description <https://secure.wikimedia
+    .org/wikipedia/de/wiki/K%C3%B6lner_Phonetik>`__ of the algorithm in german.
+
+
+    Unlike most other phonetic encoding algorithms, the Cologne Phonetic is not truncated to a
+    specific length but rather returned in its full length.
+
+    .. note:: As suggested in the Wikipedia description, umlauts and ß are encoded as 0
+
     """
+    
     if not name: raise ValueError("Name can not be empty")
     if not isinstance( name, (str, unicode) ): raise ValueError("Name must be string or unicode")
 
