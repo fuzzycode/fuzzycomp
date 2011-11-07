@@ -19,7 +19,7 @@ from distutils.core import setup
 
 setup(
     name = "fuzzycomp",
-    version = "0.2.0",
+    version = "0.2.1",
     packages = ["fuzzycomp"],
     author = "Björn Larsson",
     author_email = "fuzzycomp@googlegroups.com",
