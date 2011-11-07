@@ -19,14 +19,15 @@ from distutils.core import setup
 
 setup(
     name = "fuzzycomp",
-    version = "0.1.0",
+    version = "0.2.0",
     packages = ["fuzzycomp"],
     author = "Björn Larsson",
     author_email = "fuzzycomp@googlegroups.com",
     url = "http://code.google.com/p/fuzzycomp/",
     download_url = "http://code.google.com/p/fuzzycomp/downloads/list",
     license = "GPLv3",
-    description="A package implementing various sequence/string comparison algorithms.",
+    description='A package implementing various sequence/string comparison \
+                algorithms.',
     keywords = ["comparison", "fuzzy"],
     classifiers = [
         "Programming Language :: Python",
