@@ -1,4 +1,3 @@
-
 About
 =====
 *Fuzzycomp* is a package purely implemented in Python for comparing
@@ -63,7 +62,7 @@ The package is not yet represented on PyPI so the best ways to install
 
 Using *pip* replacing X Y Z for the version number that you want to install::
 
- pip install http://fuzzycomp.googlecode.com/files/fuzzycomp-X.Y.Z.tar.gz
+ pip install https://github.com/fuzzycode/fuzzycomp/downloads/fuzzycomp-X.Y.Z.tar.gz
 
 Or by downloading and unpacking the desired version and from the console
 executing::
