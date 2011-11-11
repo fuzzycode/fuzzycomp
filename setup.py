@@ -17,6 +17,12 @@
 
 from distutils.core import setup
 
+def get_description():
+    try:
+        return open('README.txt').read() + open('CHANGES.txt').read()
+    except:
+        return "No Description"
+
 setup(
     name = "fuzzycomp",
     version = "0.2.1",
@@ -28,6 +34,7 @@ setup(
     license = "GPLv3",
     description='A package implementing various sequence/string comparison \
                 algorithms.',
+    long_description = get_description(),
     keywords = ["comparison", "fuzzy"],
     classifiers = [
         "Programming Language :: Python",

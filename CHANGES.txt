@@ -1,6 +1,20 @@
-2011-10-25, 0.1.0, Added the first ( 0.1.0 ) version of the package.
-2011-11-07, 0.2.0, Added a more extensive set of unit tests. Added
-experimental support for
-Metaphone, NYSIIS and Cologne Phonetics ("Kölner Phonetik"). Added html documentation to the
-distributed package. Added documentation for all implemented algorithms.
-2011-11-07, 0.2.1, Fixed documentation version errors
+
+Change Log
+==========
+
+2011-11-07, 0.2.1
+-----------------
+ * Fixed documentation version errors
+
+2011-11-07, 0.2.0
+-----------------
+ * Added a more extensive set of unit tests.
+ * Added experimental support for Metaphone, NYSIIS and Cologne Phonetics
+   ("Kölner Phonetik").
+ * Added html documentation to the distributed package.
+ * Added documentation for all implemented algorithms.
+
+
+2011-10-25, 0.1.0
+-----------------
+ * Added the first ( 0.1.0 ) version of the package.
