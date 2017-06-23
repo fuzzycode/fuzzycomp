@@ -608,7 +608,7 @@ def cologne_phonetic(name):
     # note: this will convert 'ß' to 'SS'
     name = name.upper().strip()
     # replace umlauts, accents, etc with ascii letters - removes œ and æ, greek and cyrillic letters etc.
-    name = unicodedata.normalize('NFKD', name.lower()).encode('ascii', 'ignore').decode()
+    name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode()
 
     rules = [
         (r'[^A-Z]+', ''),
