@@ -20,6 +20,7 @@
 from exceptions import IndexError, ValueError
 from math import floor
 import itertools
+import unicodedata
 import re
 
 __all__ = ["levenshtein_distance", "jaccard_distance", "soerensen_index",
@@ -596,7 +597,7 @@ def cologne_phonetic(name):
     not truncated to a specific length but rather returned in its full length.
 
     .. note:: As suggested in the Wikipedia description,
-        umlauts and ß are encoded as 0
+        umlauts are encoded as 0, but ß is encoded like S
     """
 
     if not name:
@@ -604,7 +605,10 @@ def cologne_phonetic(name):
     if not isinstance(name, (str, unicode)):
         raise ValueError("Name must be string or unicode")
 
+    # note: this will convert 'ß' to 'SS'
     name = name.upper().strip()
+    # replace umlauts, accents, etc with ascii letters - removes œ and æ, greek and cyrillic letters etc.
+    name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode()
 
     rules = [
         (r'[^A-Z]+', ''),
@@ -627,7 +631,7 @@ def cologne_phonetic(name):
         (r'R', '7'),
         (r'L', '5'),
         (r'[MN]', '6'),
-        (r'[AEIJOUYÄÖÜß]+', '0'),
+        (r'[AEIJOUY]+', '0'),
         #remove duplicates
         (r'(\d)\1+', r'\1'),
         #Remove all 0
